@@ -59,12 +59,12 @@ def main():
         elif choice == "2":
             view_expenses()
 
-        elif choice == "3":
-            print("Thank you for using Expense Tracker!")
-            break
+      elif choice == "3":
+    delete_expense()
 
-        else:
-            print("Invalid choice. Please try again.")
+elif choice == "4":
+    print("Thank you for using Expense Tracker!")
+    break
 
 
 if __name__ == "__main__":
