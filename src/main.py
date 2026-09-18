@@ -1,8 +1,34 @@
-expenses = []
+import json
+import os
 
 
-def add_expense():
-    name = input("Enter expense name: ")
+DATA_FILE = "data/expenses.json"
+
+
+def load_expenses():
+    if not os.path.exists(DATA_FILE):
+        return []
+
+    try:
+        with open(DATA_FILE, "r") as file:
+            return json.load(file)
+    except (json.JSONDecodeError, FileNotFoundError):
+        return []
+
+
+def save_expenses(expenses):
+    os.makedirs("data", exist_ok=True)
+
+    with open(DATA_FILE, "w") as file:
+        json.dump(expenses, file, indent=4)
+
+
+def add_expense(expenses):
+    name = input("Enter expense name: ").strip()
+
+    if not name:
+        print("Expense name cannot be empty.")
+        return
 
     try:
         amount = float(input("Enter amount: ₹"))
@@ -17,13 +43,15 @@ def add_expense():
         }
 
         expenses.append(expense)
+        save_expenses(expenses)
+
         print("Expense added successfully!")
 
     except ValueError:
         print("Please enter a valid amount.")
 
 
-def view_expenses():
+def view_expenses(expenses):
     if not expenses:
         print("\nNo expenses found.")
         return
@@ -31,22 +59,30 @@ def view_expenses():
     print("\n===== YOUR EXPENSES =====")
 
     for number, expense in enumerate(expenses, start=1):
-        print(f"{number}. {expense['name']} - ₹{expense['amount']:.2f}")
+        print(
+            f"{number}. {expense['name']} - "
+            f"₹{expense['amount']:.2f}"
+        )
 
 
-def delete_expense():
+def delete_expense(expenses):
     if not expenses:
         print("\nNo expenses found.")
         return
 
-    view_expenses()
+    view_expenses(expenses)
 
     try:
         number = int(input("\nEnter expense number to delete: "))
 
         if 1 <= number <= len(expenses):
             deleted = expenses.pop(number - 1)
-            print(f"Deleted: {deleted['name']} - ₹{deleted['amount']:.2f}")
+            save_expenses(expenses)
+
+            print(
+                f"Deleted: {deleted['name']} - "
+                f"₹{deleted['amount']:.2f}"
+            )
         else:
             print("Invalid expense number.")
 
@@ -54,7 +90,7 @@ def delete_expense():
         print("Please enter a valid number.")
 
 
-def show_total():
+def show_total(expenses):
     if not expenses:
         print("\nNo expenses found.")
         return
@@ -65,6 +101,8 @@ def show_total():
 
 
 def main():
+    expenses = load_expenses()
+
     while True:
         print("\n==============================")
         print("      PYTHON EXPENSE TRACKER")
@@ -79,16 +117,16 @@ def main():
         choice = input("Enter your choice: ")
 
         if choice == "1":
-            add_expense()
+            add_expense(expenses)
 
         elif choice == "2":
-            view_expenses()
+            view_expenses(expenses)
 
         elif choice == "3":
-            delete_expense()
+            delete_expense(expenses)
 
         elif choice == "4":
-            show_total()
+            show_total(expenses)
 
         elif choice == "5":
             print("\nThank you for using Python Expense Tracker!")
